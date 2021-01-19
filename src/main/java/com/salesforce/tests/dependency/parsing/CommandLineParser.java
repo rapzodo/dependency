@@ -1,10 +1,12 @@
 package com.salesforce.tests.dependency.parsing;
 
 import com.salesforce.tests.dependency.enums.CommandType;
+import com.salesforce.tests.dependency.exceptions.InvalidCommandException;
 import com.salesforce.tests.dependency.models.ComponentCommand;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 public class CommandLineParser implements Parser<ComponentCommand> {
@@ -20,16 +22,35 @@ public class CommandLineParser implements Parser<ComponentCommand> {
     public ComponentCommand parse(String input) {
         System.out.println(input);
         final String[] fields = input.split(delimiter);
-        final CommandType commandType = CommandType.valueOf(fields[0]);
-        if (isEndOrListCommand(commandType)) {
-            return new ComponentCommand(commandType);
+        try {
+            final CommandType commandType = CommandType.valueOf(fields[0]);
+            if (isEndOrListCommand(commandType)) {
+                validateCommand(fields,length -> length > 1);
+                return new ComponentCommand(commandType);
+            }
+            final String componentName = fields[1];
+            if (isDependCommand(commandType)) {
+                validateCommand(fields,length -> length < 3);
+                final String[] dependenciesArray = Arrays.copyOfRange(fields, 2, fields.length);
+                return new ComponentCommand(commandType, componentName, Arrays.asList(dependenciesArray));
+            }
+            if (isInstallCommand(commandType)) {
+                validateCommand(fields,length -> length != 2);
+            }
+            return new ComponentCommand(commandType, componentName);
+        } catch (IllegalArgumentException ex) {
+            throw new InvalidCommandException();
         }
-        final String componentName = fields[1];
-        if (isDependCommand(commandType)) {
-            final String[] dependenciesArray = Arrays.copyOfRange(fields, 2, fields.length);
-            return new ComponentCommand(commandType, componentName, Arrays.asList(dependenciesArray));
+    }
+
+    private boolean isInstallCommand(CommandType commandType) {
+        return commandType == CommandType.INSTALL;
+    }
+
+    private void validateCommand(String[] fields, Predicate<Integer> predicate) {
+        if (predicate.test(fields.length)) {
+            throw new InvalidCommandException();
         }
-        return new ComponentCommand(commandType, componentName);
     }
 
     private boolean isDependCommand(CommandType commandType) {

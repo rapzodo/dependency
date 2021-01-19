@@ -40,6 +40,27 @@ public class SampleInputTest extends BaseTest {
     }
 
     @Test
+    //INSTALL: output "Installing"
+    public void shouldNotInstall() throws IOException {
+        String[] input = {
+                "DEPEND A B\n",
+                "INSTALL A\n",
+                "INSTALL B\n",
+                "END\n"
+        };
+
+        String expectedOutput = "DEPEND A B\n" +
+                "INSTALL A\n" +
+                "Installing B\n" +
+                "Installing A\n" +
+                "INSTALL B\n" +
+                "B is already installed\n" +
+                "END\n";
+
+        runTest(expectedOutput, input);
+    }
+
+    @Test
     //REMOVE: uninstall the module
     public void testRemove() throws IOException {
         String[] input = {
@@ -57,6 +78,29 @@ public class SampleInputTest extends BaseTest {
                 "Installing A\n" +
                 "REMOVE A\n" +
                 "Removing A\n" +
+                "END\n";
+
+        runTest(expectedOutput, input);
+    }
+
+    @Test
+    //REMOVE: uninstall the module
+    public void shouldNotRemove() throws IOException {
+        String[] input = {
+                "DEPEND A B\n",
+                "INSTALL B\n",
+                "INSTALL A\n",
+                "REMOVE B\n",
+                "END\n"
+        };
+
+        String expectedOutput = "DEPEND A B\n" +
+                "INSTALL B\n" +
+                "Installing B\n" +
+                "INSTALL A\n" +
+                "Installing A\n" +
+                "REMOVE B\n" +
+                "B is still needed\n" +
                 "END\n";
 
         runTest(expectedOutput, input);

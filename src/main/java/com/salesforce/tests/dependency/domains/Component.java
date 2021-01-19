@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -13,16 +12,10 @@ import java.util.Objects;
 public class Component {
 
     private String componentName;
-    private List<Component> dependencies;
     private boolean explicitInstall;
 
     public Component(String componentName) {
         this.componentName = componentName;
-    }
-
-    public Component(String componentName, List<Component> dependencies) {
-        this.componentName = componentName;
-        this.dependencies = dependencies;
     }
 
     @Override
@@ -35,6 +28,6 @@ public class Component {
 
     @Override
     public int hashCode() {
-        return Objects.hash(componentName, explicitInstall);
+        return Objects.hash(componentName);
     }
 }

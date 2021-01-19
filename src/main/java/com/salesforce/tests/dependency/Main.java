@@ -12,10 +12,10 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        final ComponentManagementService service = new DefaultComponentManagementService();
         //read input from stdin
         Scanner scan = new Scanner(System.in);
 
+        final ComponentManagementService service = new DefaultComponentManagementService();
         while (true) {
             String line = scan.nextLine();
 
@@ -31,7 +31,7 @@ public class Main {
             }
 
             //Please provide your implementation here
-           service.executeCommand(new CommandLineParser().parse(line));
+            service.decideAndExecute(new CommandLineParser().parse(line));
         }
 
     }
